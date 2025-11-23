@@ -75,6 +75,35 @@
             font-weight: 600;
             transition: all 0.3s;
             font-size: 14px;
+            position: relative;
+            opacity: 0.7;
+        }
+        
+        .btn.active {
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 15px rgba(30, 58, 138, 0.9);
+            transform: scale(1.15);
+            opacity: 1;
+            border: 3px solid white;
+            font-size: 15px;
+        }
+        
+        .btn.active::after {
+            content: '✓';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            background: #10b981;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         
         .btn-primary {
@@ -199,9 +228,9 @@
         <div class="controls">
             <div class="control-group">
                 <label>Experimento:</label>
-                <button class="btn btn-primary" onclick="showExperiment('carga')">Carga Térmica</button>
-                <button class="btn btn-secondary" onclick="showExperiment('descarga')">Descarga Térmica</button>
-                <button class="btn btn-primary" onclick="showExperiment('comparacion')">Comparación</button>
+                <button class="btn btn-primary active" id="btnCarga" onclick="showExperiment('carga')">Carga Térmica</button>
+                <button class="btn btn-secondary" id="btnDescarga" onclick="showExperiment('descarga')">Descarga Térmica</button>
+                <button class="btn btn-primary" id="btnComparacion" onclick="showExperiment('comparacion')">Comparación</button>
             </div>
             <div class="control-group">
                 <label>
@@ -590,11 +619,20 @@
         function showExperiment(experiment) {
             currentExperiment = experiment;
             
+            // Remover clase active de todos los botones
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Agregar clase active al botón correspondiente
             if (experiment === 'carga') {
+                document.getElementById('btnCarga').classList.add('active');
                 updateDashboard(dataCarga);
             } else if (experiment === 'descarga') {
+                document.getElementById('btnDescarga').classList.add('active');
                 updateDashboard(dataDescarga);
             } else if (experiment === 'comparacion') {
+                document.getElementById('btnComparacion').classList.add('active');
                 createComparisonView();
             }
         }
@@ -673,7 +711,7 @@
             `;
         }
 
-        // Inicializar dashboard con datos de carg
+        // Inicializar dashboard con datos de carga
         window.onload = () => {
             showExperiment('carga');
         };
