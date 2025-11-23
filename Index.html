@@ -168,6 +168,173 @@
             margin-bottom: 30px;
         }
         
+        .data-management {
+            display: none;
+        }
+        
+        .data-management.active {
+            display: block;
+        }
+        
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .form-section h2 {
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #7c3aed;
+            padding-bottom: 10px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #1e3a8a;
+        }
+        
+        .btn-form {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+        
+        .btn-info {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .data-table th {
+            background: #1e3a8a;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .data-table tr:hover {
+            background: #f3f4f6;
+        }
+        
+        .data-table button {
+            padding: 5px 12px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-edit {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background: #d97706;
+        }
+        
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+        
+        .json-viewer {
+            background: #1e293b;
+            color: #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            max-height: 400px;
+            margin-top: 20px;
+        }
+        
         .chart-container {
             background: white;
             padding: 25px;
@@ -231,6 +398,7 @@
                 <button class="btn btn-primary active" id="btnCarga" onclick="showExperiment('carga')">Carga Térmica</button>
                 <button class="btn btn-secondary" id="btnDescarga" onclick="showExperiment('descarga')">Descarga Térmica</button>
                 <button class="btn btn-primary" id="btnComparacion" onclick="showExperiment('comparacion')">Comparación</button>
+                <button class="btn btn-secondary" id="btnGestionDatos" onclick="showExperiment('datos')">📝 Gestión de Datos</button>
             </div>
             <div class="control-group">
                 <label>
@@ -268,6 +436,83 @@
                 <canvas id="deltaDistChart"></canvas>
             </div>
         </div>
+        
+        <!-- Sección de Gestión de Datos -->
+        <div class="data-management" id="dataManagement">
+            <div class="form-section">
+                <h2>➕ Agregar Nueva Medición</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Experimento:</label>
+                        <select id="experimentType">
+                            <option value="carga">Carga Térmica</option>
+                            <option value="descarga">Descarga Térmica</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Timestamp:</label>
+                        <input type="text" id="timestamp" placeholder="HH:MM">
+                    </div>
+                    <div class="form-group">
+                        <label>Sensor 1 (20cm) °C:</label>
+                        <input type="number" step="0.1" id="sensor1">
+                    </div>
+                    <div class="form-group">
+                        <label>Sensor 2 (40cm) °C:</label>
+                        <input type="number" step="0.1" id="sensor2">
+                    </div>
+                    <div class="form-group">
+                        <label>Sensor 3 (60cm) °C:</label>
+                        <input type="number" step="0.1" id="sensor3">
+                    </div>
+                    <div class="form-group">
+                        <label>ΔT °C:</label>
+                        <input type="number" step="0.001" id="deltaT">
+                    </div>
+                    <div class="form-group">
+                        <label>dT/dt (°C/min):</label>
+                        <input type="number" step="0.001" id="rate">
+                    </div>
+                    <div class="form-group">
+                        <label>Eficiencia (%):</label>
+                        <input type="number" step="0.01" id="efficiency">
+                    </div>
+                </div>
+                <div>
+                    <button class="btn-form btn-success" onclick="addMeasurement()">✓ Agregar Medición</button>
+                    <button class="btn-form btn-info" onclick="clearForm()">🔄 Limpiar Formulario</button>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h2>📋 Datos de Carga Térmica</h2>
+                <button class="btn-form btn-danger" onclick="deleteAllMeasurements('carga')">🗑️ Eliminar Todos</button>
+                <table class="data-table" id="tableCarga"></table>
+            </div>
+            
+            <div class="form-section">
+                <h2>📋 Datos de Descarga Térmica</h2>
+                <button class="btn-form btn-danger" onclick="deleteAllMeasurements('descarga')">🗑️ Eliminar Todos</button>
+                <table class="data-table" id="tableDescarga"></table>
+            </div>
+            
+            <div class="form-section">
+                <h2>💾 Exportar/Importar Datos</h2>
+                <div style="margin-bottom: 20px;">
+                    <button class="btn-form btn-info" onclick="exportJSON()">⬇️ Descargar JSON</button>
+                    <button class="btn-form btn-success" onclick="document.getElementById('fileInputJSON').click()">⬆️ Cargar JSON</button>
+                    <button class="btn-form btn-success" onclick="document.getElementById('fileInputCSV').click()">📊 Importar CSV</button>
+                    <input type="file" id="fileInputJSON" accept=".json" style="display:none" onchange="importJSON(event)">
+                    <input type="file" id="fileInputCSV" accept=".csv" style="display:none" onchange="importCSV(event)">
+                </div>
+                <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #3b82f6;">
+                    <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 14px;">📝 Formato CSV esperado:</h3>
+                    <p style="margin: 5px 0; font-size: 13px; color: #1e40af;">Las columnas deben ser: <strong>Timestamp, Sensor 1 (20 cm) °C, Sensor 2 (40 cm) °C, Sensor 3 (60 cm) °C, ΔT (°C) vs anterior, dT/dt (°C/min), Eficiencia térmica (%)</strong></p>
+                    <p style="margin: 5px 0; font-size: 13px; color: #1e40af;">El sistema detectará automáticamente si es Carga (temp ~26-29°C) o Descarga (temp ~20-23°C)</p>
+                </div>
+                <div class="json-viewer" id="jsonViewer"></div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -295,6 +540,28 @@
         let charts = {};
         let currentExperiment = 'carga';
         let useInterpolation = true;
+        let editingIndex = null;
+        let editingType = null;
+
+        // Cargar datos desde localStorage o usar datos por defecto
+        function loadData() {
+            const savedCarga = localStorage.getItem('dataCarga');
+            const savedDescarga = localStorage.getItem('dataDescarga');
+            
+            if (savedCarga) {
+                Object.assign(dataCarga, JSON.parse(savedCarga));
+            }
+            if (savedDescarga) {
+                Object.assign(dataDescarga, JSON.parse(savedDescarga));
+            }
+        }
+
+        // Guardar datos en localStorage
+        function saveData() {
+            localStorage.setItem('dataCarga', JSON.stringify(dataCarga));
+            localStorage.setItem('dataDescarga', JSON.stringify(dataDescarga));
+            updateJSONViewer();
+        }
 
         // Función de interpolación lineal
         function interpolateData(data, points = 50) {
@@ -624,16 +891,34 @@
                 btn.classList.remove('active');
             });
             
-            // Agregar clase active al botón correspondiente
-            if (experiment === 'carga') {
-                document.getElementById('btnCarga').classList.add('active');
-                updateDashboard(dataCarga);
-            } else if (experiment === 'descarga') {
-                document.getElementById('btnDescarga').classList.add('active');
-                updateDashboard(dataDescarga);
-            } else if (experiment === 'comparacion') {
-                document.getElementById('btnComparacion').classList.add('active');
-                createComparisonView();
+            // Ocultar/mostrar secciones
+            const chartGrid = document.querySelector('.chart-grid');
+            const dataManagement = document.getElementById('dataManagement');
+            const statsGrid = document.getElementById('statsGrid');
+            
+            if (experiment === 'datos') {
+                document.getElementById('btnGestionDatos').classList.add('active');
+                chartGrid.style.display = 'none';
+                statsGrid.style.display = 'none';
+                dataManagement.classList.add('active');
+                renderTables();
+                updateJSONViewer();
+            } else {
+                chartGrid.style.display = 'grid';
+                statsGrid.style.display = 'grid';
+                dataManagement.classList.remove('active');
+                
+                // Agregar clase active al botón correspondiente
+                if (experiment === 'carga') {
+                    document.getElementById('btnCarga').classList.add('active');
+                    updateDashboard(dataCarga);
+                } else if (experiment === 'descarga') {
+                    document.getElementById('btnDescarga').classList.add('active');
+                    updateDashboard(dataDescarga);
+                } else if (experiment === 'comparacion') {
+                    document.getElementById('btnComparacion').classList.add('active');
+                    createComparisonView();
+                }
             }
         }
 
@@ -713,8 +998,323 @@
 
         // Inicializar dashboard con datos de carga
         window.onload = () => {
+            loadData();
             showExperiment('carga');
         };
+
+        // CRUD Functions
+        function addMeasurement() {
+            const type = document.getElementById('experimentType').value;
+            const data = type === 'carga' ? dataCarga : dataDescarga;
+            
+            const newMeasurement = {
+                timestamp: document.getElementById('timestamp').value,
+                sensor1: parseFloat(document.getElementById('sensor1').value),
+                sensor2: parseFloat(document.getElementById('sensor2').value),
+                sensor3: parseFloat(document.getElementById('sensor3').value),
+                deltaT: parseFloat(document.getElementById('deltaT').value) || null,
+                rate: parseFloat(document.getElementById('rate').value) || null,
+                efficiency: parseFloat(document.getElementById('efficiency').value)
+            };
+            
+            if (!newMeasurement.timestamp || isNaN(newMeasurement.sensor1) || 
+                isNaN(newMeasurement.sensor2) || isNaN(newMeasurement.sensor3) || 
+                isNaN(newMeasurement.efficiency)) {
+                alert('Por favor completa todos los campos obligatorios');
+                return;
+            }
+            
+            if (editingIndex !== null && editingType === type) {
+                // Editar medición existente
+                data.timestamps[editingIndex] = newMeasurement.timestamp;
+                data.sensor1[editingIndex] = newMeasurement.sensor1;
+                data.sensor2[editingIndex] = newMeasurement.sensor2;
+                data.sensor3[editingIndex] = newMeasurement.sensor3;
+                data.deltaT[editingIndex] = newMeasurement.deltaT;
+                data.rate[editingIndex] = newMeasurement.rate;
+                data.efficiency[editingIndex] = newMeasurement.efficiency;
+                editingIndex = null;
+                editingType = null;
+            } else {
+                // Agregar nueva medición
+                data.timestamps.push(newMeasurement.timestamp);
+                data.sensor1.push(newMeasurement.sensor1);
+                data.sensor2.push(newMeasurement.sensor2);
+                data.sensor3.push(newMeasurement.sensor3);
+                data.deltaT.push(newMeasurement.deltaT);
+                data.rate.push(newMeasurement.rate);
+                data.efficiency.push(newMeasurement.efficiency);
+            }
+            
+            saveData();
+            renderTables();
+            clearForm();
+            alert('Medición guardada exitosamente');
+        }
+
+        function editMeasurement(type, index) {
+            const data = type === 'carga' ? dataCarga : dataDescarga;
+            
+            document.getElementById('experimentType').value = type;
+            document.getElementById('timestamp').value = data.timestamps[index];
+            document.getElementById('sensor1').value = data.sensor1[index];
+            document.getElementById('sensor2').value = data.sensor2[index];
+            document.getElementById('sensor3').value = data.sensor3[index];
+            document.getElementById('deltaT').value = data.deltaT[index];
+            document.getElementById('rate').value = data.rate[index];
+            document.getElementById('efficiency').value = data.efficiency[index];
+            
+            editingIndex = index;
+            editingType = type;
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteMeasurement(type, index) {
+            if (!confirm('¿Estás seguro de eliminar esta medición?')) return;
+            
+            const data = type === 'carga' ? dataCarga : dataDescarga;
+            
+            data.timestamps.splice(index, 1);
+            data.sensor1.splice(index, 1);
+            data.sensor2.splice(index, 1);
+            data.sensor3.splice(index, 1);
+            data.deltaT.splice(index, 1);
+            data.rate.splice(index, 1);
+            data.efficiency.splice(index, 1);
+            
+            saveData();
+            renderTables();
+        }
+
+        function deleteAllMeasurements(type) {
+            if (!confirm(`¿Estás seguro de eliminar TODAS las mediciones de ${type}?`)) return;
+            
+            const data = type === 'carga' ? dataCarga : dataDescarga;
+            
+            data.timestamps = [];
+            data.sensor1 = [];
+            data.sensor2 = [];
+            data.sensor3 = [];
+            data.deltaT = [];
+            data.rate = [];
+            data.efficiency = [];
+            
+            saveData();
+            renderTables();
+        }
+
+        function clearForm() {
+            document.getElementById('timestamp').value = '';
+            document.getElementById('sensor1').value = '';
+            document.getElementById('sensor2').value = '';
+            document.getElementById('sensor3').value = '';
+            document.getElementById('deltaT').value = '';
+            document.getElementById('rate').value = '';
+            document.getElementById('efficiency').value = '';
+            editingIndex = null;
+            editingType = null;
+        }
+
+        function renderTables() {
+            renderTable('carga', dataCarga, 'tableCarga');
+            renderTable('descarga', dataDescarga, 'tableDescarga');
+        }
+
+        function renderTable(type, data, tableId) {
+            const table = document.getElementById(tableId);
+            
+            let html = `
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Sensor 1</th>
+                        <th>Sensor 2</th>
+                        <th>Sensor 3</th>
+                        <th>ΔT</th>
+                        <th>dT/dt</th>
+                        <th>Eficiencia</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+            
+            for (let i = 0; i < data.timestamps.length; i++) {
+                html += `
+                    <tr>
+                        <td>${data.timestamps[i]}</td>
+                        <td>${data.sensor1[i]}°C</td>
+                        <td>${data.sensor2[i]}°C</td>
+                        <td>${data.sensor3[i]}°C</td>
+                        <td>${data.deltaT[i] !== null ? data.deltaT[i] : 'N/A'}°C</td>
+                        <td>${data.rate[i] !== null ? data.rate[i] : 'N/A'}</td>
+                        <td>${data.efficiency[i]}%</td>
+                        <td>
+                            <button class="btn-edit" onclick="editMeasurement('${type}', ${i})">✏️ Editar</button>
+                            <button class="btn-delete" onclick="deleteMeasurement('${type}', ${i})">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            html += '</tbody>';
+            table.innerHTML = html;
+        }
+
+        function updateJSONViewer() {
+            const jsonData = {
+                carga: dataCarga,
+                descarga: dataDescarga
+            };
+            document.getElementById('jsonViewer').textContent = JSON.stringify(jsonData, null, 2);
+        }
+
+        function exportJSON() {
+            const jsonData = {
+                carga: dataCarga,
+                descarga: dataDescarga
+            };
+            const dataStr = JSON.stringify(jsonData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'thermal_storage_data.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    
+                    if (jsonData.carga) {
+                        Object.assign(dataCarga, jsonData.carga);
+                    }
+                    if (jsonData.descarga) {
+                        Object.assign(dataDescarga, jsonData.descarga);
+                    }
+                    
+                    saveData();
+                    renderTables();
+                    updateJSONViewer();
+                    alert('Datos importados exitosamente');
+                } catch (error) {
+                    alert('Error al importar JSON: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function importCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const text = e.target.result;
+                    const lines = text.split('\n').filter(line => line.trim());
+                    
+                    if (lines.length < 2) {
+                        alert('El archivo CSV está vacío o no tiene datos');
+                        return;
+                    }
+                    
+                    // Parsear los datos
+                    const newData = {
+                        timestamps: [],
+                        sensor1: [],
+                        sensor2: [],
+                        sensor3: [],
+                        deltaT: [],
+                        rate: [],
+                        efficiency: []
+                    };
+                    
+                    // Saltar la primera línea (encabezados)
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+                        
+                        // Separar por comas
+                        const values = line.split(',').map(v => v.trim());
+                        
+                        if (values.length >= 7) {
+                            // Extraer timestamp (formato: 18-11-25 12:04)
+                            const fullTimestamp = values[0];
+                            const timePart = fullTimestamp.split(' ')[1]; // Extraer solo HH:MM
+                            
+                            newData.timestamps.push(timePart || fullTimestamp);
+                            newData.sensor1.push(parseFloat(values[1]) || 0);
+                            newData.sensor2.push(parseFloat(values[2]) || 0);
+                            newData.sensor3.push(parseFloat(values[3]) || 0);
+                            newData.deltaT.push(values[4] ? parseFloat(values[4]) : null);
+                            newData.rate.push(values[5] ? parseFloat(values[5]) : null);
+                            newData.efficiency.push(parseFloat(values[6]) || 0);
+                        }
+                    }
+                    
+                    if (newData.timestamps.length === 0) {
+                        alert('No se pudieron leer datos válidos del CSV');
+                        return;
+                    }
+                    
+                    // Detectar automáticamente si es carga o descarga basándose en temperatura promedio
+                    const avgTemp = newData.sensor1.reduce((a, b) => a + b, 0) / newData.sensor1.length;
+                    
+                    let targetData, experimentType;
+                    if (avgTemp > 25) {
+                        targetData = dataCarga;
+                        experimentType = 'Carga Térmica';
+                    } else {
+                        targetData = dataDescarga;
+                        experimentType = 'Descarga Térmica';
+                    }
+                    
+                    // Preguntar si desea reemplazar o agregar
+                    const action = confirm(
+                        `Se detectó como experimento de ${experimentType} (Temp promedio: ${avgTemp.toFixed(1)}°C)\n\n` +
+                        `${newData.timestamps.length} mediciones encontradas.\n\n` +
+                        `Click OK para REEMPLAZAR los datos existentes\n` +
+                        `Click CANCELAR para AGREGAR a los datos existentes`
+                    );
+                    
+                    if (action) {
+                        // Reemplazar
+                        Object.assign(targetData, newData);
+                    } else {
+                        // Agregar
+                        targetData.timestamps.push(...newData.timestamps);
+                        targetData.sensor1.push(...newData.sensor1);
+                        targetData.sensor2.push(...newData.sensor2);
+                        targetData.sensor3.push(...newData.sensor3);
+                        targetData.deltaT.push(...newData.deltaT);
+                        targetData.rate.push(...newData.rate);
+                        targetData.efficiency.push(...newData.efficiency);
+                    }
+                    
+                    saveData();
+                    renderTables();
+                    updateJSONViewer();
+                    alert(`CSV importado exitosamente como ${experimentType}!\n${newData.timestamps.length} mediciones procesadas.`);
+                    
+                } catch (error) {
+                    alert('Error al importar CSV: ' + error.message);
+                    console.error('Error detallado:', error);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Resetear el input para permitir importar el mismo archivo nuevamente
+            event.target.value = '';
+        }
     </script>
 </body>
 </html>
