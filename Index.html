@@ -500,7 +500,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1> Sistema de Almacenamiento Térmico - Packed Bed</h1>
+            <h1>📊 Sistema de Almacenamiento Térmico - Packed Bed</h1>
             <p>Análisis de Transferencia de Calor y Eficiencia Térmica</p>
         </div>
         
@@ -545,7 +545,7 @@
             </div>
             
             <div class="chart-container">
-                <h2> Distribución de ΔT</h2>
+                <h2>📊 Distribución de ΔT</h2>
                 <canvas id="deltaDistChart"></canvas>
             </div>
         </div>
@@ -570,16 +570,17 @@
             <div class="kpi-card">
                 <h2>🌡️ Tasa de Cambio Térmico (dT/dt)</h2>
                 <div class="kpi-description">
-                    <strong>Descripción:</strong> Rapidez con la que el sistema gana calor (día) o pierde calor (noche), expresada en °C/min.
+                    <strong>Descripción:</strong> Rapidez con la que el sistema gana calor (día) o pierde calor (noche), expresada en °C/min. Mide la efectividad de transferencia térmica intencional del sistema.
                 </div>
                 <div class="kpi-formula">
                     dT/dt = (T<sub>actual</sub> - T<sub>anterior</sub>) / Δt
                 </div>
                 <div class="kpi-criteria">
-                    <h4>Criterios Óptimos:</h4>
+                    <h4>Criterios Óptimos (Sistema Efectivo):</h4>
                     <ul>
-                        <li><strong>Carga térmica óptima:</strong> dT/dt ≥ 0.05 °C/min</li>
-                        <li><strong>Descarga térmica óptima:</strong> dT/dt ≤ -0.04 °C/min</li>
+                        <li><strong>Carga térmica óptima:</strong> dT/dt ≥ 0.08 °C/min (4.8°C/hora)</li>
+                        <li><strong>Descarga térmica óptima:</strong> dT/dt ≤ -0.06 °C/min (-3.6°C/hora)</li>
+                        <li><em>Basado en sistemas packed bed comerciales de pequeña escala</em></li>
                     </ul>
                 </div>
                 <div class="kpi-results" id="kpiTasaCambio"></div>
@@ -1544,7 +1545,7 @@
             const ratesCarga = dataCarga.rate.filter(r => r !== null && !isNaN(r) && r > 0);
             const avgRateCarga = ratesCarga.length > 0 ? 
                 ratesCarga.reduce((a, b) => a + b, 0) / ratesCarga.length : 0;
-            const optimalCarga = avgRateCarga >= 0.05;
+            const optimalCarga = avgRateCarga >= 0.08; // Umbral competitivo
             
             // Calcular tasa por hora para Carga
             const avgRateCargaHora = avgRateCarga * 60;
@@ -1553,10 +1554,24 @@
             const ratesDescarga = dataDescarga.rate.filter(r => r !== null && !isNaN(r) && r < 0);
             const avgRateDescarga = ratesDescarga.length > 0 ? 
                 ratesDescarga.reduce((a, b) => a + b, 0) / ratesDescarga.length : 0;
-            const optimalDescarga = avgRateDescarga <= -0.04;
+            const optimalDescarga = avgRateDescarga <= -0.06; // Umbral competitivo
             
             // Calcular tasa por hora para Descarga
             const avgRateDescargaHora = avgRateDescarga * 60;
+            
+            // Determinar estado del sistema
+            let statusGeneral = '';
+            let statusClass = '';
+            if (optimalCarga && optimalDescarga) {
+                statusGeneral = 'Sistema de Alto Rendimiento';
+                statusClass = 'success';
+            } else if (avgRateCarga >= 0.05 && avgRateDescarga <= -0.04) {
+                statusGeneral = 'Sistema Funcional (por encima del mínimo)';
+                statusClass = 'warning';
+            } else {
+                statusGeneral = 'Sistema Requiere Optimización';
+                statusClass = 'danger';
+            }
             
             container.innerHTML = `
                 <div class="kpi-result-card ${optimalCarga ? 'success' : 'warning'}">
@@ -1567,7 +1582,7 @@
                         ${avgRateCargaHora >= 0 ? '+' : ''}${avgRateCargaHora.toFixed(1)} °C/h
                     </div>
                     <div style="margin-top: 10px; font-size: 14px;">
-                        ${optimalCarga ? '✓ ÓPTIMO (≥ 0.05)' : '⚠ NO ÓPTIMO (< 0.05)'}
+                        ${optimalCarga ? '✓ ÓPTIMO (≥ 0.08)' : avgRateCarga >= 0.05 ? '⚠ FUNCIONAL (≥ 0.05)' : '✗ BAJO RENDIMIENTO'}
                     </div>
                 </div>
                 <div class="kpi-result-card ${optimalDescarga ? 'success' : 'warning'}">
@@ -1578,14 +1593,20 @@
                         ${avgRateDescargaHora.toFixed(2)} °C/h
                     </div>
                     <div style="margin-top: 10px; font-size: 14px;">
-                        ${optimalDescarga ? '✓ ÓPTIMO (≤ -0.04)' : '⚠ NO ÓPTIMO (> -0.04)'}
+                        ${optimalDescarga ? '✓ ÓPTIMO (≤ -0.06)' : avgRateDescarga <= -0.04 ? '⚠ FUNCIONAL (≤ -0.04)' : '✗ BAJO RENDIMIENTO'}
                     </div>
                 </div>
-                <div class="kpi-result-card success" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
-                    <h3>Interpretación</h3>
-                    <div style="font-size: 14px; line-height: 1.6; margin-top: 10px;">
-                        El prototipo muestra una <strong>carga térmica gradual</strong> y una <strong>descarga controlada</strong>, 
-                        indicando un comportamiento térmico más estable que la condición sin proyecto.
+                <div class="kpi-result-card ${statusClass}" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
+                    <h3>Evaluación Global</h3>
+                    <div style="font-size: 16px; font-weight: 600; margin: 15px 0;">
+                        ${statusGeneral}
+                    </div>
+                    <div style="font-size: 13px; line-height: 1.6;">
+                        El sistema demuestra ${optimalCarga && optimalDescarga ? 
+                        'tasas de transferencia térmica comparables con sistemas comerciales de pequeña escala' : 
+                        avgRateCarga >= 0.05 && avgRateDescarga <= -0.04 ?
+                        'capacidad de almacenamiento térmico por encima del mínimo funcional' :
+                        'potencial de mejora mediante optimización de flujo de aire o configuración del lecho'}
                     </div>
                 </div>
             `;
