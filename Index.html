@@ -509,8 +509,7 @@
                 <label>Experimento:</label>
                 <button class="btn btn-primary active" id="btnCarga" onclick="showExperiment('carga')">Carga Térmica</button>
                 <button class="btn btn-secondary" id="btnDescarga" onclick="showExperiment('descarga')">Descarga Térmica</button>
-                <button class="btn btn-primary" id="btnReposoCalor" onclick="showExperiment('reposo-calor')">🔥 Reposo con Calor</button>
-                <button class="btn btn-secondary" id="btnReposoFrio" onclick="showExperiment('reposo-frio')">❄️ Reposo con Frío</button>
+                <button class="btn btn-primary" id="btnReposoCalor" onclick="showExperiment('reposo-calor')">Reposo</button>
                 <button class="btn btn-primary" id="btnComparacion" onclick="showExperiment('comparacion')">Comparación</button>
                 <button class="btn btn-secondary" id="btnKPIs" onclick="showExperiment('kpis')">📊 KPIs del Proyecto</button>
                 <button class="btn btn-secondary" id="btnGestionDatos" onclick="showExperiment('datos')">📝 Gestión de Datos</button>
@@ -1194,17 +1193,10 @@
                             tension: 0.4
                         },
                         {
-                            label: 'Reposo Calor - Sensor 1',
+                            label: 'Reposo - Sensor 1',
                             data: dataReposoCalor.sensor1,
                             borderColor: '#ff9f40',
                             backgroundColor: 'rgba(255, 159, 64, 0.1)',
-                            tension: 0.4
-                        },
-                        {
-                            label: 'Reposo Frío - Sensor 1',
-                            data: dataReposoFrio.sensor1,
-                            borderColor: '#4bc0c0',
-                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
                             tension: 0.4
                         }
                     ]
@@ -1243,7 +1235,6 @@
             const avgCarga = dataCarga.sensor1.reduce((a,b)=>a+b,0)/dataCarga.sensor1.length;
             const avgDescarga = dataDescarga.sensor1.reduce((a,b)=>a+b,0)/dataDescarga.sensor1.length;
             const avgReposoCalor = dataReposoCalor.sensor1.reduce((a,b)=>a+b,0)/dataReposoCalor.sensor1.length;
-            const avgReposoFrio = dataReposoFrio.sensor1.reduce((a,b)=>a+b,0)/dataReposoFrio.sensor1.length;
             
             statsGrid.innerHTML = `
                 <div class="stat-card">
@@ -1259,16 +1250,6 @@
                 <div class="stat-card">
                     <h3>Temp. Promedio Reposo Calor</h3>
                     <div class="value">${avgReposoCalor.toFixed(2)}</div>
-                    <div class="unit">°C</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Temp. Promedio Reposo Frío</h3>
-                    <div class="value">${avgReposoFrio.toFixed(2)}</div>
-                    <div class="unit">°C</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Rango Total</h3>
-                    <div class="value">${(Math.max(avgCarga, avgReposoCalor) - Math.min(avgDescarga, avgReposoFrio)).toFixed(2)}</div>
                     <div class="unit">°C</div>
                 </div>
             `;
@@ -1616,7 +1597,8 @@
             const container = document.getElementById('kpiSensores');
             
             // Verificar si hay datos en cualquiera de los experimentos
-            const sensoresImplementados = (dataCarga.timestamps.length > 0 || dataDescarga.timestamps.length > 0) ? 1 : 0;
+            const sensoresImplementados = (dataCarga.timestamps.length > 0 || dataDescarga.timestamps.length > 0
+                || dataReposoCalor.timestamps.length > 0 || dataReposoFrio.timestamps.length > 0) ? 1 : 0;
             const status = sensoresImplementados === 1 ? 'success' : 'danger';
             const statusText = sensoresImplementados === 1 ? '✓ IMPLEMENTADO' : '✗ NO IMPLEMENTADO';
             
@@ -1628,7 +1610,8 @@
                 </div>
                 <div class="kpi-result-card ${status}">
                     <h3>Total de Mediciones</h3>
-                    <div class="value">${dataCarga.timestamps.length + dataDescarga.timestamps.length}</div>
+                    <div class="value">${dataCarga.timestamps.length + dataDescarga.timestamps.length +
+                         dataReposoCalor.timestamps.length}</div>
                     <div class="status">Datos Registrados</div>
                 </div>
             `;
@@ -1767,7 +1750,7 @@
                 effReposoCalor.reduce((a, b) => a + b, 0) / effReposoCalor.length : 0;
             const avgEffReposoFrio = effReposoFrio.length > 0 ?
                 effReposoFrio.reduce((a, b) => a + b, 0) / effReposoFrio.length : 0;
-            const avgEffTotal = (avgEffCarga + avgEffDescarga + avgEffReposoCalor + avgEffReposoFrio) / 4;
+            const avgEffTotal = (avgEffCarga + avgEffDescarga + avgEffReposoCalor) / 3;
             
             const statusCarga = avgEffCarga >= 90 ? 'success' : (avgEffCarga >= 85 ? 'warning' : 'danger');
             const statusDescarga = avgEffDescarga >= 90 ? 'success' : (avgEffDescarga >= 85 ? 'warning' : 'danger');
@@ -1802,19 +1785,11 @@
                     </div>
                 </div>
                 <div class="kpi-result-card ${statusReposoCalor}">
-                    <h3>Reposo con Calor</h3>
+                    <h3>Reposo</h3>
                     <div class="value">${avgEffReposoCalor.toFixed(2)}%</div>
                     <div class="status">${avgEffReposoCalor >= 90 ? '✓ ÓPTIMO' : '⚠ MEJORABLE'}</div>
                     <div style="margin-top: 10px; font-size: 13px; opacity: 0.9;">
                         Min: ${minEffReposoCalor.toFixed(2)}% | Max: ${maxEffReposoCalor.toFixed(2)}%
-                    </div>
-                </div>
-                <div class="kpi-result-card ${statusReposoFrio}">
-                    <h3>Reposo con Frío</h3>
-                    <div class="value">${avgEffReposoFrio.toFixed(2)}%</div>
-                    <div class="status">${avgEffReposoFrio >= 90 ? '✓ ÓPTIMO' : '⚠ MEJORABLE'}</div>
-                    <div style="margin-top: 10px; font-size: 13px; opacity: 0.9;">
-                        Min: ${minEffReposoFrio.toFixed(2)}% | Max: ${maxEffReposoFrio.toFixed(2)}%
                     </div>
                 </div>
                 <div class="kpi-result-card ${statusTotal}">
