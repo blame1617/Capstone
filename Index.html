@@ -589,7 +589,7 @@
             </div>
             
             <div class="kpi-card">
-                <h2>📏 Cumplimiento del Rango Térmico del Lecho (25-27°C)</h2>
+                <h2>📏 Cumplimiento del Rango Térmico del Lecho (26-28°C)</h2>
                 <div class="kpi-description">
                     <strong>Descripción:</strong> Porcentaje de mediciones del lecho que se mantienen dentro del rango térmico objetivo.
                 </div>
@@ -599,7 +599,7 @@
                 <div class="kpi-criteria">
                     <h4>Rango Objetivo:</h4>
                     <ul>
-                        <li>Temperatura entre <strong>25°C y 27°C</strong></li>
+                        <li>Temperatura entre <strong>26°C y 28°C</strong></li>
                     </ul>
                 </div>
                 <div class="kpi-results" id="kpiRangoTermico"></div>
@@ -1713,7 +1713,7 @@
             
             // Usar SOLO los datos de Reposo con Calor para este KPI
             const allTemps = [...dataReposoCalor.sensor1, ...dataReposoCalor.sensor2, ...dataReposoCalor.sensor3];
-            const tempInRange = allTemps.filter(t => t >= 25 && t <= 27).length;
+            const tempInRange = allTemps.filter(t => t >= 26 && t <= 28).length;
             const total = allTemps.length;
             const rangoReposoCalor = total > 0 ? (tempInRange / total * 100) : 0;
             
@@ -1724,7 +1724,7 @@
             
             container.innerHTML = `
                 <div class="kpi-result-card ${statusReposoCalor}">
-                    <h3>Cumplimiento Rango 25-27°C</h3>
+                    <h3>Cumplimiento Rango 26-28°C</h3>
                     <div class="value">${rangoReposoCalor.toFixed(1)}%</div>
                     <div class="status">Mediciones en Reposo con Calor</div>
                     <div style="margin-top: 10px; font-size: 13px; opacity: 0.9;">
