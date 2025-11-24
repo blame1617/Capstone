@@ -509,6 +509,8 @@
                 <label>Experimento:</label>
                 <button class="btn btn-primary active" id="btnCarga" onclick="showExperiment('carga')">Carga Térmica</button>
                 <button class="btn btn-secondary" id="btnDescarga" onclick="showExperiment('descarga')">Descarga Térmica</button>
+                <button class="btn btn-primary" id="btnReposoCalor" onclick="showExperiment('reposo-calor')">🔥 Reposo con Calor</button>
+                <button class="btn btn-secondary" id="btnReposoFrio" onclick="showExperiment('reposo-frio')">❄️ Reposo con Frío</button>
                 <button class="btn btn-primary" id="btnComparacion" onclick="showExperiment('comparacion')">Comparación</button>
                 <button class="btn btn-secondary" id="btnKPIs" onclick="showExperiment('kpis')">📊 KPIs del Proyecto</button>
                 <button class="btn btn-secondary" id="btnGestionDatos" onclick="showExperiment('datos')">📝 Gestión de Datos</button>
@@ -721,6 +723,26 @@
             efficiency: [93.68, 93.24, 93, 93.44, 92.88, 92.64, 92.76, 93.08, 92.52, 92.36, 92.84, 93.2]
         };
 
+        const dataReposoCalor = {
+            timestamps: ['19:04', '19:09', '19:14', '19:19', '19:24', '19:29', '19:34', '19:39', '19:44', '19:49', '19:54', '19:59'],
+            sensor1: [28.24, 28.03, 27.92, 27.83, 27.53, 27.36, 27.34, 27.12, 26.85, 26.77, 26.53, 26.36],
+            sensor2: [28.22, 27.88, 27.73, 27.66, 27.46, 27.41, 27.15, 26.94, 27.01, 26.71, 26.57, 26.29],
+            sensor3: [28.16, 28.05, 27.78, 27.74, 27.50, 27.36, 27.17, 27.20, 26.89, 26.64, 26.63, 26.30],
+            deltaT: [null, -0.214, -0.101, -0.094, -0.304, -0.164, -0.019, -0.229, -0.263, -0.083, -0.244, -0.164],
+            rate: [null, -0.043, -0.020, -0.019, -0.061, -0.033, -0.004, -0.046, -0.053, -0.017, -0.049, -0.033],
+            efficiency: [null, 99.24, 99.64, 99.66, 98.91, 99.41, 99.93, 99.16, 99.03, 99.69, 99.09, 99.38]
+        };
+
+        const dataReposoFrio = {
+            timestamps: ['20:07', '20:12', '20:17', '20:22', '20:27', '20:32', '20:37', '20:42', '20:47', '20:52', '20:57', '21:02'],
+            sensor1: [21.02, 20.79, 20.63, 20.48, 20.19, 19.99, 19.88, 19.64, 19.38, 19.23, 18.98, 18.78],
+            sensor2: [21.01, 20.70, 20.51, 20.37, 20.15, 20.02, 19.75, 19.53, 19.47, 19.19, 19.00, 18.73],
+            sensor3: [20.97, 20.81, 20.54, 20.42, 20.17, 19.99, 19.77, 19.69, 19.40, 19.15, 19.04, 18.74],
+            deltaT: [null, -0.232, -0.161, -0.156, -0.288, -0.200, -0.109, -0.241, -0.262, -0.149, -0.250, -0.200],
+            rate: [null, -0.046, -0.032, -0.031, -0.058, -0.040, -0.022, -0.048, -0.052, -0.030, -0.050, -0.040],
+            efficiency: [null, 98.90, 99.23, 99.24, 98.59, 99.01, 99.45, 98.79, 98.67, 99.23, 98.70, 98.95]
+        };
+
         let charts = {};
         let currentExperiment = 'carga';
         let useInterpolation = true;
@@ -731,6 +753,8 @@
         function loadData() {
             const savedCarga = localStorage.getItem('dataCarga');
             const savedDescarga = localStorage.getItem('dataDescarga');
+            const savedReposoCalor = localStorage.getItem('dataReposoCalor');
+            const savedReposoFrio = localStorage.getItem('dataReposoFrio');
             
             if (savedCarga) {
                 Object.assign(dataCarga, JSON.parse(savedCarga));
@@ -738,12 +762,20 @@
             if (savedDescarga) {
                 Object.assign(dataDescarga, JSON.parse(savedDescarga));
             }
+            if (savedReposoCalor) {
+                Object.assign(dataReposoCalor, JSON.parse(savedReposoCalor));
+            }
+            if (savedReposoFrio) {
+                Object.assign(dataReposoFrio, JSON.parse(savedReposoFrio));
+            }
         }
 
         // Guardar datos en localStorage
         function saveData() {
             localStorage.setItem('dataCarga', JSON.stringify(dataCarga));
             localStorage.setItem('dataDescarga', JSON.stringify(dataDescarga));
+            localStorage.setItem('dataReposoCalor', JSON.stringify(dataReposoCalor));
+            localStorage.setItem('dataReposoFrio', JSON.stringify(dataReposoFrio));
             updateJSONViewer();
         }
 
@@ -1107,6 +1139,12 @@
                 } else if (experiment === 'descarga') {
                     document.getElementById('btnDescarga').classList.add('active');
                     updateDashboard(dataDescarga);
+                } else if (experiment === 'reposo-calor') {
+                    document.getElementById('btnReposoCalor').classList.add('active');
+                    updateDashboard(dataReposoCalor);
+                } else if (experiment === 'reposo-frio') {
+                    document.getElementById('btnReposoFrio').classList.add('active');
+                    updateDashboard(dataReposoFrio);
                 } else if (experiment === 'comparacion') {
                     document.getElementById('btnComparacion').classList.add('active');
                     createComparisonView();
@@ -1139,20 +1177,35 @@
             charts.tempTime = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: dataCarga.timestamps,
+                    labels: ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'],
                     datasets: [
                         {
                             label: 'Carga - Sensor 1',
                             data: dataCarga.sensor1,
                             borderColor: '#ff6384',
                             backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                            borderDash: [5, 5]
+                            tension: 0.4
                         },
                         {
                             label: 'Descarga - Sensor 1',
                             data: dataDescarga.sensor1,
-                            borderColor: '#ff6384',
-                            backgroundColor: 'rgba(255, 99, 132, 0.1)'
+                            borderColor: '#36a2eb',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Reposo Calor - Sensor 1',
+                            data: dataReposoCalor.sensor1,
+                            borderColor: '#ff9f40',
+                            backgroundColor: 'rgba(255, 159, 64, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Reposo Frío - Sensor 1',
+                            data: dataReposoFrio.sensor1,
+                            borderColor: '#4bc0c0',
+                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                            tension: 0.4
                         }
                     ]
                 },
@@ -1162,6 +1215,24 @@
                     plugins: {
                         legend: {
                             position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tiempo (minutos)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Temperatura (°C)'
+                            }
                         }
                     }
                 }
@@ -1169,21 +1240,36 @@
 
             // Actualizar estadísticas comparativas
             const statsGrid = document.getElementById('statsGrid');
+            const avgCarga = dataCarga.sensor1.reduce((a,b)=>a+b,0)/dataCarga.sensor1.length;
+            const avgDescarga = dataDescarga.sensor1.reduce((a,b)=>a+b,0)/dataDescarga.sensor1.length;
+            const avgReposoCalor = dataReposoCalor.sensor1.reduce((a,b)=>a+b,0)/dataReposoCalor.sensor1.length;
+            const avgReposoFrio = dataReposoFrio.sensor1.reduce((a,b)=>a+b,0)/dataReposoFrio.sensor1.length;
+            
             statsGrid.innerHTML = `
                 <div class="stat-card">
-                    <h3>Diferencia Temp. Media</h3>
-                    <div class="value">${(dataCarga.sensor1.reduce((a,b)=>a+b,0)/dataCarga.sensor1.length - dataDescarga.sensor1.reduce((a,b)=>a+b,0)/dataDescarga.sensor1.length).toFixed(2)}</div>
+                    <h3>Temp. Promedio Carga</h3>
+                    <div class="value">${avgCarga.toFixed(2)}</div>
                     <div class="unit">°C</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Eficiencia Carga</h3>
-                    <div class="value">${(dataCarga.efficiency.reduce((a,b)=>a+b,0)/dataCarga.efficiency.length).toFixed(2)}</div>
-                    <div class="unit">%</div>
+                    <h3>Temp. Promedio Descarga</h3>
+                    <div class="value">${avgDescarga.toFixed(2)}</div>
+                    <div class="unit">°C</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Eficiencia Descarga</h3>
-                    <div class="value">${(dataDescarga.efficiency.reduce((a,b)=>a+b,0)/dataDescarga.efficiency.length).toFixed(2)}</div>
-                    <div class="unit">%</div>
+                    <h3>Temp. Promedio Reposo Calor</h3>
+                    <div class="value">${avgReposoCalor.toFixed(2)}</div>
+                    <div class="unit">°C</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Temp. Promedio Reposo Frío</h3>
+                    <div class="value">${avgReposoFrio.toFixed(2)}</div>
+                    <div class="unit">°C</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Rango Total</h3>
+                    <div class="value">${(Math.max(avgCarga, avgReposoCalor) - Math.min(avgDescarga, avgReposoFrio)).toFixed(2)}</div>
+                    <div class="unit">°C</div>
                 </div>
             `;
         }
@@ -1357,7 +1443,9 @@
         function updateJSONViewer() {
             const jsonData = {
                 carga: dataCarga,
-                descarga: dataDescarga
+                descarga: dataDescarga,
+                reposoCalor: dataReposoCalor,
+                reposoFrio: dataReposoFrio
             };
             document.getElementById('jsonViewer').textContent = JSON.stringify(jsonData, null, 2);
         }
@@ -1365,7 +1453,9 @@
         function exportJSON() {
             const jsonData = {
                 carga: dataCarga,
-                descarga: dataDescarga
+                descarga: dataDescarga,
+                reposoCalor: dataReposoCalor,
+                reposoFrio: dataReposoFrio
             };
             const dataStr = JSON.stringify(jsonData, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
@@ -1391,6 +1481,12 @@
                     }
                     if (jsonData.descarga) {
                         Object.assign(dataDescarga, jsonData.descarga);
+                    }
+                    if (jsonData.reposoCalor) {
+                        Object.assign(dataReposoCalor, jsonData.reposoCalor);
+                    }
+                    if (jsonData.reposoFrio) {
+                        Object.assign(dataReposoFrio, jsonData.reposoFrio);
                     }
                     
                     saveData();
@@ -1559,7 +1655,7 @@
             // Calcular tasa por hora para Descarga
             const avgRateDescargaHora = avgRateDescarga * 60;
             
-            // Determinar estado del sistemavd
+            // Determinar estado del sistema
             let statusGeneral = '';
             let statusClass = '';
             if (optimalCarga && optimalDescarga) {
@@ -1615,36 +1711,43 @@
         function calculateRangoTermicoKPI() {
             const container = document.getElementById('kpiRangoTermico');
             
-            function calcularRango(data) {
-                const allTemps = [...data.sensor1, ...data.sensor2, ...data.sensor3];
-                const tempInRange = allTemps.filter(t => t >= 25 && t <= 27).length;
-                const total = allTemps.length;
-                return total > 0 ? (tempInRange / total * 100) : 0;
-            }
+            // Usar SOLO los datos de Reposo con Calor para este KPI
+            const allTemps = [...dataReposoCalor.sensor1, ...dataReposoCalor.sensor2, ...dataReposoCalor.sensor3];
+            const tempInRange = allTemps.filter(t => t >= 25 && t <= 27).length;
+            const total = allTemps.length;
+            const rangoReposoCalor = total > 0 ? (tempInRange / total * 100) : 0;
             
-            const rangoCarga = calcularRango(dataCarga);
-            const rangoDescarga = calcularRango(dataDescarga);
-            const rangoTotal = ((rangoCarga + rangoDescarga) / 2);
+            const statusReposoCalor = rangoReposoCalor >= 70 ? 'success' : (rangoReposoCalor >= 50 ? 'warning' : 'danger');
             
-            const statusCarga = rangoCarga >= 70 ? 'success' : (rangoCarga >= 50 ? 'warning' : 'danger');
-            const statusDescarga = rangoDescarga >= 70 ? 'success' : (rangoDescarga >= 50 ? 'warning' : 'danger');
-            const statusTotal = rangoTotal >= 70 ? 'success' : (rangoTotal >= 50 ? 'warning' : 'danger');
+            // Calcular temperatura promedio para contexto
+            const avgTemp = allTemps.reduce((a,b) => a+b, 0) / allTemps.length;
             
             container.innerHTML = `
-                <div class="kpi-result-card ${statusCarga}">
-                    <h3>Carga Térmica</h3>
-                    <div class="value">${rangoCarga.toFixed(1)}%</div>
-                    <div class="status">En rango 25-27°C</div>
+                <div class="kpi-result-card ${statusReposoCalor}">
+                    <h3>Cumplimiento Rango 25-27°C</h3>
+                    <div class="value">${rangoReposoCalor.toFixed(1)}%</div>
+                    <div class="status">Mediciones en Reposo con Calor</div>
+                    <div style="margin-top: 10px; font-size: 13px; opacity: 0.9;">
+                        ${tempInRange} de ${total} mediciones en rango
+                    </div>
                 </div>
-                <div class="kpi-result-card ${statusDescarga}">
-                    <h3>Descarga Térmica</h3>
-                    <div class="value">${rangoDescarga.toFixed(1)}%</div>
-                    <div class="status">En rango 25-27°C</div>
+                <div class="kpi-result-card ${statusReposoCalor}">
+                    <h3>Temperatura Promedio</h3>
+                    <div class="value">${avgTemp.toFixed(2)}°C</div>
+                    <div class="status">Durante fase de reposo</div>
+                    <div style="margin-top: 10px; font-size: 13px; opacity: 0.9;">
+                        Rango: ${Math.min(...allTemps).toFixed(1)}°C - ${Math.max(...allTemps).toFixed(1)}°C
+                    </div>
                 </div>
-                <div class="kpi-result-card ${statusTotal}">
-                    <h3>Promedio General</h3>
-                    <div class="value">${rangoTotal.toFixed(1)}%</div>
-                    <div class="status">Cumplimiento Total</div>
+                <div class="kpi-result-card ${statusReposoCalor}">
+                    <h3>Evaluación</h3>
+                    <div style="font-size: 14px; line-height: 1.6; margin-top: 10px;">
+                        ${rangoReposoCalor >= 70 ? 
+                        '✓ El sistema mantiene la temperatura objetivo eficazmente durante el reposo' : 
+                        rangoReposoCalor >= 50 ?
+                        '⚠ El sistema mantiene temperatura cercana al rango objetivo' :
+                        '✗ Se requiere optimización del aislamiento térmico'}
+                    </div>
                 </div>
             `;
         }
@@ -1652,20 +1755,34 @@
         function calculateEficienciaKPI() {
             const container = document.getElementById('kpiEficiencia');
             
+            // Filtrar valores null de eficiencia en reposos
+            const effReposoCalor = dataReposoCalor.efficiency.filter(e => e !== null);
+            const effReposoFrio = dataReposoFrio.efficiency.filter(e => e !== null);
+            
             const avgEffCarga = dataCarga.efficiency.length > 0 ?
                 dataCarga.efficiency.reduce((a, b) => a + b, 0) / dataCarga.efficiency.length : 0;
             const avgEffDescarga = dataDescarga.efficiency.length > 0 ?
                 dataDescarga.efficiency.reduce((a, b) => a + b, 0) / dataDescarga.efficiency.length : 0;
-            const avgEffTotal = (avgEffCarga + avgEffDescarga) / 2;
+            const avgEffReposoCalor = effReposoCalor.length > 0 ?
+                effReposoCalor.reduce((a, b) => a + b, 0) / effReposoCalor.length : 0;
+            const avgEffReposoFrio = effReposoFrio.length > 0 ?
+                effReposoFrio.reduce((a, b) => a + b, 0) / effReposoFrio.length : 0;
+            const avgEffTotal = (avgEffCarga + avgEffDescarga + avgEffReposoCalor + avgEffReposoFrio) / 4;
             
             const statusCarga = avgEffCarga >= 90 ? 'success' : (avgEffCarga >= 85 ? 'warning' : 'danger');
             const statusDescarga = avgEffDescarga >= 90 ? 'success' : (avgEffDescarga >= 85 ? 'warning' : 'danger');
+            const statusReposoCalor = avgEffReposoCalor >= 90 ? 'success' : (avgEffReposoCalor >= 85 ? 'warning' : 'danger');
+            const statusReposoFrio = avgEffReposoFrio >= 90 ? 'success' : (avgEffReposoFrio >= 85 ? 'warning' : 'danger');
             const statusTotal = avgEffTotal >= 90 ? 'success' : (avgEffTotal >= 85 ? 'warning' : 'danger');
             
             const minEffCarga = Math.min(...dataCarga.efficiency);
             const maxEffCarga = Math.max(...dataCarga.efficiency);
             const minEffDescarga = Math.min(...dataDescarga.efficiency);
             const maxEffDescarga = Math.max(...dataDescarga.efficiency);
+            const minEffReposoCalor = effReposoCalor.length > 0 ? Math.min(...effReposoCalor) : 0;
+            const maxEffReposoCalor = effReposoCalor.length > 0 ? Math.max(...effReposoCalor) : 0;
+            const minEffReposoFrio = effReposoFrio.length > 0 ? Math.min(...effReposoFrio) : 0;
+            const maxEffReposoFrio = effReposoFrio.length > 0 ? Math.max(...effReposoFrio) : 0;
             
             container.innerHTML = `
                 <div class="kpi-result-card ${statusCarga}">
@@ -1684,10 +1801,29 @@
                         Min: ${minEffDescarga.toFixed(2)}% | Max: ${maxEffDescarga.toFixed(2)}%
                     </div>
                 </div>
+                <div class="kpi-result-card ${statusReposoCalor}">
+                    <h3>Reposo con Calor</h3>
+                    <div class="value">${avgEffReposoCalor.toFixed(2)}%</div>
+                    <div class="status">${avgEffReposoCalor >= 90 ? '✓ ÓPTIMO' : '⚠ MEJORABLE'}</div>
+                    <div style="margin-top: 10px; font-size: 13px; opacity: 0.9;">
+                        Min: ${minEffReposoCalor.toFixed(2)}% | Max: ${maxEffReposoCalor.toFixed(2)}%
+                    </div>
+                </div>
+                <div class="kpi-result-card ${statusReposoFrio}">
+                    <h3>Reposo con Frío</h3>
+                    <div class="value">${avgEffReposoFrio.toFixed(2)}%</div>
+                    <div class="status">${avgEffReposoFrio >= 90 ? '✓ ÓPTIMO' : '⚠ MEJORABLE'}</div>
+                    <div style="margin-top: 10px; font-size: 13px; opacity: 0.9;">
+                        Min: ${minEffReposoFrio.toFixed(2)}% | Max: ${maxEffReposoFrio.toFixed(2)}%
+                    </div>
+                </div>
                 <div class="kpi-result-card ${statusTotal}">
                     <h3>Promedio General</h3>
                     <div class="value">${avgEffTotal.toFixed(2)}%</div>
                     <div class="status">${avgEffTotal >= 90 ? '✓ EXCELENTE' : '⚠ ACEPTABLE'}</div>
+                    <div style="font-size: 13px; margin-top: 10px; opacity: 0.9;">
+                        El sistema retiene energía térmica de manera ${avgEffTotal >= 95 ? 'extraordinaria' : avgEffTotal >= 90 ? 'muy efectiva' : 'efectiva'}
+                    </div>
                 </div>
             `;
         }
